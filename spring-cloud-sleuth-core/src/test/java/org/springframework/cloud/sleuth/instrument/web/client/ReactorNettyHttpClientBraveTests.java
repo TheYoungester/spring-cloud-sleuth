@@ -52,15 +52,20 @@ public class ReactorNettyHttpClientBraveTests extends ITHttpAsyncClient<HttpClie
 	protected HttpClient newClient(int port) {
 		AnnotationConfigApplicationContext result = new AnnotationConfigApplicationContext();
 		result.registerBean(HttpTracing.class, () -> httpTracing);
-		result.registerBean(HttpClient.class, () -> HttpClient.create()
+		result.registerBean(HttpClient.class,
+				ReactorNettyHttpClientBraveTests::testHttpClient);
+		result.register(HttpClientBeanPostProcessor.class);
+		result.refresh();
+		return result.getBean(HttpClient.class).baseUrl("http://127.0.0.1:" + port);
+	}
+
+	static HttpClient testHttpClient() {
+		return HttpClient.create()
 				.tcpConfiguration(tcpClient -> tcpClient
 						.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 1000)
 						.doOnConnected(conn -> conn
 								.addHandler(new ReadTimeoutHandler(1, TimeUnit.SECONDS))))
-				.followRedirect(true));
-		result.register(HttpClientBeanPostProcessor.class);
-		result.refresh();
-		return result.getBean(HttpClient.class).baseUrl("http://127.0.0.1:" + port);
+				.followRedirect(true);
 	}
 
 	@Override

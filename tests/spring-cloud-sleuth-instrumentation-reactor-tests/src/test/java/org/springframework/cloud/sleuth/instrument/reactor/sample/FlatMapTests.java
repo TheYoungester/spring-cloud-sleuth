@@ -169,7 +169,7 @@ public class FlatMapTests {
 	}
 
 	private Mono<ClientResponse> callFlatMap(int port) {
-		return WebClient.create().get().uri("http://localhost:" + port + "/withFlatMap")
+		return WebClient.Builder.create().get().uri("http://localhost:" + port + "/withFlatMap")
 				.exchange();
 	}
 
